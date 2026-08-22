@@ -51,9 +51,9 @@ export class SeedCommand extends CommandRunner {
 
     if ((await this.productRepository.count()) === 0) {
       await this.productRepository.save([
-        { name: 'Wireless Earbuds', price: 10_000_00n },
-        { name: 'Smart Watch', price: 15_000_00n },
-        { name: 'Bluetooth Speaker', price: 10_000_00n },
+        { name: 'Wireless Earbuds', price: 10_000_00n, stock: 50 },
+        { name: 'Smart Watch', price: 15_000_00n, stock: 30 },
+        { name: 'Bluetooth Speaker', price: 10_000_00n, stock: 4 },
       ]);
       this.logger.log('Seeded products');
     }

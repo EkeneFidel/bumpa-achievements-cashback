@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
-import { SeedModule } from './database/seeds/seed.module';
+import { PurchaseModule } from './purchase/purchase.module';
 import { HttpExceptionFilter } from './filters/exception.filter';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponserInterceptor } from './interceptor/response.interceptor';
@@ -26,7 +26,7 @@ import { ResponserInterceptor } from './interceptor/response.interceptor';
         password: configService.get<string>('REDIS_PASSWORD'),
       },
     }),
-  }), UserModule, ProductModule, AuthModule, SeedModule],
+  }), UserModule, ProductModule, AuthModule, PurchaseModule],
   controllers: [AppController],
   providers: [AppService, {
     provide: APP_FILTER,

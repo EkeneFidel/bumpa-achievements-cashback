@@ -17,6 +17,9 @@ export class Product {
   @Column('bigint')
   price: bigint;
 
+  @Column('int', { default: 0 })
+  stock: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
