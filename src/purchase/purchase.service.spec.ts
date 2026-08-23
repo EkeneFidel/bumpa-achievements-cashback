@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getDataSourceToken } from '@nestjs/typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PurchaseService } from './purchase.service';
 
 
@@ -56,6 +57,7 @@ describe('PurchaseService', () => {
       providers: [
         PurchaseService,
         { provide: getDataSourceToken(), useValue: dataSource },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 

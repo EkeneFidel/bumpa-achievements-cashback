@@ -14,6 +14,8 @@ import { PurchaseModule } from './purchase/purchase.module';
 import { HttpExceptionFilter } from './filters/exception.filter';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponserInterceptor } from './interceptor/response.interceptor';
+import { AchievementsModule } from './achievements/achievements.module';
+import { BadgesModule } from './badges/badges.module';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true, }), DatabaseModule, EventEmitterModule.forRoot(), CacheModule, BullModule.forRootAsync({
@@ -26,7 +28,7 @@ import { ResponserInterceptor } from './interceptor/response.interceptor';
         password: configService.get<string>('REDIS_PASSWORD'),
       },
     }),
-  }), UserModule, ProductModule, AuthModule, PurchaseModule],
+  }), UserModule, ProductModule, AuthModule, PurchaseModule, AchievementsModule, BadgesModule],
   controllers: [AppController],
   providers: [AppService, {
     provide: APP_FILTER,

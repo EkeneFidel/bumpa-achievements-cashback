@@ -5,19 +5,29 @@ import {
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { User } from '../user/entities/user.entity';
 import { Product } from '../product/entities/product.entity';
 import { Purchase } from './entities/purchase.entity';
+import {
+  PURCHASE_RECORDED_EVENT,
+  PurchaseRecordedEvent,
+} from './events/purchase-recorded.event';
+
 
 @Injectable()
 export class PurchaseService {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) { }
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly eventEmitter: EventEmitter2,
+  ) { }
 
   async purchase(
     userId: string,
     productId: string,
     quantity: number,
   ): Promise<Purchase> {
+
     if (!Number.isInteger(quantity) || quantity <= 0) {
       throw new BadRequestException('quantity must be a positive integer');
     }
@@ -27,11 +37,6 @@ export class PurchaseService {
     await queryRunner.startTransaction();
 
     try {
-      // pessimistic_write locks these rows for the rest of the transaction ,
-      // a concurrent purchase on the same product/user blocks here instead of
-      // reading stale stock/balance, so two buyers can't oversell the last unit
-      // or overdraw the same balance. Product is locked before User in every
-      // purchase, so lock order stays consistent and can't deadlock.
       const product = await queryRunner.manager.findOne(Product, {
         where: { id: productId },
         lock: { mode: 'pessimistic_write' },
@@ -51,8 +56,6 @@ export class PurchaseService {
         throw new NotFoundException('User not found');
       }
 
-      // pg returns bigint columns as strings, not native BigInt , coerce
-      // explicitly before doing arithmetic on price/balance.
       const totalAmount = BigInt(product.price) * BigInt(quantity);
       if (BigInt(user.balance) < totalAmount) {
         throw new BadRequestException('Insufficient balance');
@@ -74,6 +77,17 @@ export class PurchaseService {
       await queryRunner.manager.save(purchase);
 
       await queryRunner.commitTransaction();
+
+      // Emit PURCHASE_RECORDED_EVENT after the transaction has been committed
+      this.eventEmitter.emit(
+        PURCHASE_RECORDED_EVENT,
+        new PurchaseRecordedEvent(
+          userId,
+          purchase.id,
+          BigInt(purchase.totalAmount),
+        ),
+      );
+
       return purchase;
     } catch (error) {
       await queryRunner.rollbackTransaction();
