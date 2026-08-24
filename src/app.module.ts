@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { CacheModule } from './cache/cache.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
@@ -16,9 +17,10 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponserInterceptor } from './interceptor/response.interceptor';
 import { AchievementsModule } from './achievements/achievements.module';
 import { BadgesModule } from './badges/badges.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true, }), DatabaseModule, EventEmitterModule.forRoot(), CacheModule, BullModule.forRootAsync({
+  imports: [ConfigModule.forRoot({ isGlobal: true, }), DatabaseModule, EventEmitterModule.forRoot(), ScheduleModule.forRoot(), CacheModule, BullModule.forRootAsync({
     imports: [ConfigModule],
     inject: [ConfigService],
     useFactory: (configService: ConfigService) => ({
@@ -28,7 +30,7 @@ import { BadgesModule } from './badges/badges.module';
         password: configService.get<string>('REDIS_PASSWORD'),
       },
     }),
-  }), UserModule, ProductModule, AuthModule, PurchaseModule, AchievementsModule, BadgesModule],
+  }), UserModule, ProductModule, AuthModule, PurchaseModule, AchievementsModule, BadgesModule, PaymentModule],
   controllers: [AppController],
   providers: [AppService, {
     provide: APP_FILTER,

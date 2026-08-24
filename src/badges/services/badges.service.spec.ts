@@ -1,8 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { getDataSourceToken } from '@nestjs/typeorm';
 import { BadgesService } from '../services/badges.service';
 import { BadgesRepository } from '../badges.repository';
 import { AchievementsService } from '../../achievements/services/achievements.service';
+import { OutboxService } from '../../outbox/outbox.service';
+import { BADGE_CASHBACK_OUTBOX_EVENT_TYPE } from '../../payment/cashback.constants';
 import { BADGE_UNLOCKED_EVENT } from '../events/badge-unlocked.event';
 
 // Mock badges, like the badge data.
@@ -22,6 +25,15 @@ describe('BadgesService', () => {
   };
   let achievementsService: { countUnlockedAchievements: jest.Mock };
   let eventEmitter: { emit: jest.Mock };
+  let outboxService: { record: jest.Mock };
+  let queryRunner: {
+    connect: jest.Mock;
+    startTransaction: jest.Mock;
+    commitTransaction: jest.Mock;
+    rollbackTransaction: jest.Mock;
+    release: jest.Mock;
+    manager: object;
+  };
 
   beforeEach(async () => {
     repository = {
@@ -31,6 +43,17 @@ describe('BadgesService', () => {
     };
     achievementsService = { countUnlockedAchievements: jest.fn() };
     eventEmitter = { emit: jest.fn() };
+    outboxService = { record: jest.fn() };
+
+    queryRunner = {
+      connect: jest.fn(),
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+      release: jest.fn(),
+      manager: {},
+    };
+    const dataSource = { createQueryRunner: jest.fn(() => queryRunner) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -38,6 +61,8 @@ describe('BadgesService', () => {
         { provide: BadgesRepository, useValue: repository },
         { provide: AchievementsService, useValue: achievementsService },
         { provide: EventEmitter2, useValue: eventEmitter },
+        { provide: getDataSourceToken(), useValue: dataSource },
+        { provide: OutboxService, useValue: outboxService },
       ],
     }).compile();
 
@@ -46,7 +71,7 @@ describe('BadgesService', () => {
 
 
   describe('test evaluateForUser', () => {
-    it('unlocks the highest badge the user is eligible for and emits an event', async () => {
+    it('unlocks the highest badge the user is eligible for, records the cashback owed, and emits an event', async () => {
       achievementsService.countUnlockedAchievements.mockResolvedValue(5);
       repository.insertUserBadge.mockResolvedValue('user-badge-1');
 
@@ -55,7 +80,18 @@ describe('BadgesService', () => {
       expect(repository.insertUserBadge).toHaveBeenCalledWith(
         'user-1',
         'badge-achiever',
+        queryRunner.manager,
       );
+      expect(outboxService.record).toHaveBeenCalledWith(
+        queryRunner.manager,
+        BADGE_CASHBACK_OUTBOX_EVENT_TYPE,
+        expect.objectContaining({
+          userId: 'user-1',
+          badgeId: 'badge-achiever',
+          badgeName: 'Achiever',
+        }),
+      );
+      expect(queryRunner.commitTransaction).toHaveBeenCalled();
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         BADGE_UNLOCKED_EVENT,
         expect.objectContaining({
@@ -72,10 +108,11 @@ describe('BadgesService', () => {
       await service.evaluateForUser('user-1');
 
       expect(repository.insertUserBadge).not.toHaveBeenCalled();
+      expect(outboxService.record).not.toHaveBeenCalled();
       expect(eventEmitter.emit).not.toHaveBeenCalled();
     });
 
-    it('does not emit an event when the user already has the badge', async () => {
+    it('does not record a cashback or emit an event when the user already has the badge', async () => {
       achievementsService.countUnlockedAchievements.mockResolvedValue(5);
       repository.insertUserBadge.mockResolvedValue(null);
 
@@ -84,7 +121,9 @@ describe('BadgesService', () => {
       expect(repository.insertUserBadge).toHaveBeenCalledWith(
         'user-1',
         'badge-achiever',
+        queryRunner.manager,
       );
+      expect(outboxService.record).not.toHaveBeenCalled();
       expect(eventEmitter.emit).not.toHaveBeenCalled();
     });
   });

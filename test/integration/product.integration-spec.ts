@@ -36,9 +36,10 @@ describe('Products integration test', () => {
     testUser = await userRepo.save({
       name: 'Test Shopper',
       username: `test-shopper-${randomUUID()}`,
+      email: `test-shopper-${randomUUID()}@mailinator.com`,
       password: await bcrypt.hash(PASSWORD, 10),
       bankAccountNumber: '0000000000',
-      bankCode: '000',
+      bankCode: '033',
       balance: 0n,
     });
 

@@ -17,4 +17,8 @@ export class UserService {
       .where('user.username = :username', { username })
       .getOne();
   }
+
+  findById(id: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { id } });
+  }
 }

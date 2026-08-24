@@ -41,6 +41,7 @@ export class SeedCommand extends CommandRunner {
         {
           name: 'Ekene Chukwurah',
           username: 'ekene1',
+          email: 'ekene@mailinator.com',
           password: await bcrypt.hash('Testpassword2', 10),
           bankAccountNumber: '0901604042',
           bankCode: '058',
@@ -49,6 +50,7 @@ export class SeedCommand extends CommandRunner {
         {
           name: 'Saka Saliba',
           username: 'saka1',
+          email: 'saka@mailinator.com',
           password: await bcrypt.hash('Testpassword1', 10),
           bankAccountNumber: '0987654321',
           bankCode: '011',

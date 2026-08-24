@@ -30,9 +30,10 @@ describe('Authentication flow integration test', () => {
     testUser = await userRepo.save({
       name: 'Test Login User',
       username: `test-login-${randomUUID()}`,
+      email: `test-login-${randomUUID()}@mailinator.com`,
       password: await bcrypt.hash(PASSWORD, 10),
       bankAccountNumber: '0000000000',
-      bankCode: '000',
+      bankCode: '033',
       balance: 0n,
     });
   });

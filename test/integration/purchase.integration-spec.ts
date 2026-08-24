@@ -45,9 +45,10 @@ describe('Purchase integration test', () => {
     return userRepo.save({
       name: 'Test Buyer',
       username: `test-buyer-${randomUUID()}`,
+      email: `test-buyer-${randomUUID()}@mailinator.com`,
       password: passwordHash,
       bankAccountNumber: '0000000000',
-      bankCode: '000',
+      bankCode: '033',
       balance,
     });
   }

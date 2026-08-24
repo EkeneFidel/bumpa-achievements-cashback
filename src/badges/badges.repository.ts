@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Badge } from './entities/badge.entity';
 import { UserBadge } from './entities/user-badge.entity';
 
@@ -11,7 +11,7 @@ export class BadgesRepository {
     private readonly badgeRepository: Repository<Badge>,
     @InjectRepository(UserBadge)
     private readonly userBadgeRepository: Repository<UserBadge>,
-  ) {}
+  ) { }
 
   findAllOrderedByRequirement(): Promise<Badge[]> {
     return this.badgeRepository.find({
@@ -31,8 +31,13 @@ export class BadgesRepository {
   async insertUserBadge(
     userId: string,
     badgeId: string,
+    manager?: EntityManager,
   ): Promise<string | null> {
-    const result = await this.userBadgeRepository
+    const repository = manager
+      ? manager.getRepository(UserBadge)
+      : this.userBadgeRepository;
+
+    const result = await repository
       .createQueryBuilder()
       .insert()
       .into(UserBadge)

@@ -1,6 +1,14 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AchievementsService } from '../../achievements/services/achievements.service';
+import { OutboxService } from '../../outbox/outbox.service';
+import {
+  BADGE_CASHBACK_OUTBOX_EVENT_TYPE,
+  BADGE_CASHBACK_AMOUNT,
+  BadgeCashbackOutboxPayload,
+} from '../../payment/cashback.constants';
 import { BadgesRepository } from '../badges.repository';
 import { getHighestEligibleBadge } from '../badges.logic';
 import {
@@ -21,6 +29,8 @@ export class BadgesService {
     @Inject(forwardRef(() => AchievementsService))
     private readonly achievementsService: AchievementsService,
     private readonly eventEmitter: EventEmitter2,
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly outboxService: OutboxService,
   ) { }
 
   // Runs whenever a new achievement has been unlocked for a user.
@@ -38,11 +48,42 @@ export class BadgesService {
       return;
     }
 
-    // Try to save the badge for this user. If the user already has this badge, the database ignores it
-    const userBadgeId = await this.badgesRepository.insertUserBadge(
-      userId,
-      eligibleBadge.id,
-    );
+    // Awarding the badge and recording that a cashback is owed for it
+    // happen in the same transaction, so the cashback can never be lost
+    // even if the process crashes right after this.
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    let userBadgeId: string | null;
+    try {
+      userBadgeId = await this.badgesRepository.insertUserBadge(
+        userId,
+        eligibleBadge.id,
+        queryRunner.manager,
+      );
+
+      if (userBadgeId) {
+        const payload: BadgeCashbackOutboxPayload = {
+          userId,
+          badgeId: eligibleBadge.id,
+          badgeName: eligibleBadge.name,
+          amount: BADGE_CASHBACK_AMOUNT.toString(),
+        };
+        await this.outboxService.record(
+          queryRunner.manager,
+          BADGE_CASHBACK_OUTBOX_EVENT_TYPE,
+          payload as unknown as Record<string, unknown>,
+        );
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
 
     if (userBadgeId) {
       this.eventEmitter.emit(

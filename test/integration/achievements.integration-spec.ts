@@ -142,9 +142,10 @@ describe('Achievements and Badges integration test', () => {
     return userRepo.save({
       name: 'Test Achiever',
       username: `test-achiever-${randomUUID()}`,
+      email: `test-achiever-${randomUUID()}@mailinator.com`,
       password: passwordHash,
       bankAccountNumber: '0000000000',
-      bankCode: '000',
+      bankCode: '033',
       balance,
     });
   }
