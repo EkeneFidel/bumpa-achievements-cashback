@@ -6,13 +6,13 @@ import {
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { User } from '../user/entities/user.entity';
-import { Product } from '../product/entities/product.entity';
-import { Purchase } from './entities/purchase.entity';
+import { User } from '../../user/entities/user.entity';
+import { Product } from '../../product/entities/product.entity';
+import { Purchase } from '../entities/purchase.entity';
 import {
   PURCHASE_RECORDED_EVENT,
   PurchaseRecordedEvent,
-} from './events/purchase-recorded.event';
+} from '../events/purchase-recorded.event';
 
 
 @Injectable()

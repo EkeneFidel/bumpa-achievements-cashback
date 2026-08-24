@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { CacheService } from '../cache/cache.service';
+import { CacheService } from '../cache/services/cache.service';
 import {
   PURCHASE_RECORDED_EVENT,
   PurchaseRecordedEvent,
 } from '../purchase/events/purchase-recorded.event';
-import { AchievementsService } from './achievements.service';
+import { AchievementsService } from './services/achievements.service';
 
 const LOCK_TTL_SECONDS = 5;
 

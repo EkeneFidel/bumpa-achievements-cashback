@@ -4,11 +4,11 @@ import {
   ACHIEVEMENT_UNLOCKED_EVENT,
   AchievementUnlockedEvent,
 } from '../achievements/events/achievement-unlocked.event';
-import { BadgesService } from './badges.service';
+import { BadgesService } from './services/badges.service';
 
 @Injectable()
 export class BadgesListener {
-  constructor(private readonly badgesService: BadgesService) {}
+  constructor(private readonly badgesService: BadgesService) { }
 
   @OnEvent(ACHIEVEMENT_UNLOCKED_EVENT)
   async handleAchievementUnlocked(

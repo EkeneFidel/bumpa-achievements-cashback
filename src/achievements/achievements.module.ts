@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AchievementsService } from './achievements.service';
-import { AchievementsController } from './achievements.controller';
+import { AchievementsService } from './services/achievements.service';
+import { AchievementsController } from './controllers/achievements.controller';
 import { AchievementsRepository } from './achievements.repository';
 import { AchievementsListener } from './achievements.listener';
 import { AchievementGroup } from './entities/achievement-group.entity';

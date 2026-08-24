@@ -5,9 +5,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AchievementsService } from './achievements.service';
-import { BadgesService } from '../badges/badges.service';
-import { GetUserAchievementsParamsDto } from './dto/get-user-achievements-params.dto';
+import { AchievementsService } from '../services/achievements.service';
+import { BadgesService } from '../../badges/services/badges.service';
+import { GetUserAchievementsParamsDto } from '../dto/get-user-achievements-params.dto';
 
 interface UserAchievementsResponse {
   unlocked_achievements: string[];

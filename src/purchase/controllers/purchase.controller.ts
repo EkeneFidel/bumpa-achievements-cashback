@@ -7,9 +7,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { PurchaseService } from './purchase.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreatePurchaseDto } from './dto/create-purchase.dto';
+import { PurchaseService } from '../services/purchase.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CreatePurchaseDto } from '../dto/create-purchase.dto';
 
 @Controller('purchases')
 @UseGuards(JwtAuthGuard)

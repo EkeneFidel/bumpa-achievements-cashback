@@ -1,12 +1,12 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { AchievementsService } from '../achievements/achievements.service';
-import { BadgesRepository } from './badges.repository';
-import { getHighestEligibleBadge } from './badges.logic';
+import { AchievementsService } from '../../achievements/services/achievements.service';
+import { BadgesRepository } from '../badges.repository';
+import { getHighestEligibleBadge } from '../badges.logic';
 import {
   BADGE_UNLOCKED_EVENT,
   BadgeUnlockedEvent,
-} from './events/badge-unlocked.event';
+} from '../events/badge-unlocked.event';
 
 export interface UserBadgeStatus {
   currentBadge: string | null;

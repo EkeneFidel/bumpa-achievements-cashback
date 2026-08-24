@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { AchievementsRepository } from './achievements.repository';
-import { getPassedAchievementIds } from './achievements.logic';
+import { AchievementsRepository } from '../achievements.repository';
+import { getPassedAchievementIds } from '../achievements.logic';
 import {
   ACHIEVEMENT_UNLOCKED_EVENT,
   AchievementUnlockedEvent,
-} from './events/achievement-unlocked.event';
+} from '../events/achievement-unlocked.event';
 
 const PURCHASE_COUNT_GROUP_KEY = 'purchase_count';
 const TOTAL_SPEND_GROUP_KEY = 'total_spend';

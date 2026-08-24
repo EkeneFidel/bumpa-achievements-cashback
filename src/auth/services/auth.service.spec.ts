@@ -2,16 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { AuthService } from './auth.service';
-import { UserService } from '../user/user.service';
+import { AuthService } from '../services/auth.service';
+import { UserService } from '../../user/services/user.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let userService: { findByUsername: jest.Mock };
   let jwtService: { sign: jest.Mock };
 
-  // A real bcrypt hash of a known password, so validateUser's
-  // bcrypt.compare() call is genuinely exercised instead of mocked away.
+
   const CORRECT_PASSWORD = 'correct-password';
   let passwordHash: string;
 

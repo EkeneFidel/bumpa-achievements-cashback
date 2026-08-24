@@ -1,15 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserService } from './user.service';
-import { User } from './entities/user.entity';
+import { UserService } from '../services/user.service';
+import { User } from '../entities/user.entity';
 
 describe('UserService', () => {
   let service: UserService;
 
-  // TypeORM's createQueryBuilder() returns an object where every method
-  // returns itself (so calls can be chained), until the final call
-  // (getOne, in this case) that actually returns a result. We copy that
-  // shape here so we don't need a real database.
   let queryBuilder: {
     addSelect: jest.Mock;
     where: jest.Mock;

@@ -1,5 +1,5 @@
 import { Global, Inject, Module, OnModuleDestroy } from '@nestjs/common';
-import { CacheService } from './cache.service';
+import { CacheService } from './services/cache.service';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
