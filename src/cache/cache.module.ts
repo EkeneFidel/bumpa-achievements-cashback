@@ -10,7 +10,12 @@ import Redis from 'ioredis';
     provide: 'REDIS_CLIENT',
     inject: [ConfigService],
     useFactory(config: ConfigService) {
-      const redis = new Redis(config.get<any>('redis'));
+      const redis = new Redis({
+        host: config.get<string>('REDIS_HOST'),
+        port: config.get<number>('REDIS_PORT'),
+        password: config.get<string>('REDIS_PASSWORD') || undefined,
+        db: config.get<number>('REDIS_DB'),
+      });
       redis.on('disconnect', () => {
         console.error('Redis disconnected');
         redis.quit();

@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dbpass}
+      POSTGRES_DB: ${DB_NAME:-bumpa_cashback}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+
+  bumpa_cashback_api:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    ports:
+      - '${PORT:-3000}:3000'
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_data:
