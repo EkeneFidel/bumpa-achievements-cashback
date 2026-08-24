@@ -33,19 +33,13 @@ describe('UserService', () => {
     service = module.get<UserService>(UserService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  it('finds a user by username and asks for the password column explicitly', async () => {
+  it('finds a user by username and asks for the password column `explicitly`', async () => {
     const user = { id: 'user-1', username: 'ekene1', password: 'hashed' };
     queryBuilder.getOne.mockResolvedValue(user);
 
     const result = await service.findByUsername('ekene1');
 
     expect(result).toBe(user);
-    // password is select: false on the entity, so it's hidden by default
-    // this checks the service really does opt back in for it.
     expect(queryBuilder.addSelect).toHaveBeenCalledWith('user.password');
     expect(queryBuilder.where).toHaveBeenCalledWith(
       'user.username = :username',

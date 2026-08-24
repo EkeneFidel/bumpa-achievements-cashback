@@ -20,10 +20,6 @@ describe('ProductService', () => {
     service = module.get<ProductService>(ProductService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
   it('returns every product from the repository', async () => {
     const products = [
       { id: 'p1', name: 'Wireless Earbuds', price: '10000', stock: 5 },

@@ -70,8 +70,14 @@ describe('Purchase integration test', () => {
     return res.body.data.access_token;
   }
 
+  function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   // Cleans up test user, product and purchases.
   async function cleanup(userIds: string[], productIds: string[]) {
+    await sleep(500);
+
     if (userIds.length) {
       await purchaseRepo.delete({ userId: userIds[0] });
     }
